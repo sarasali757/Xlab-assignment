@@ -1,0 +1,177 @@
+
+<div style="text-align: center;direction: rtl;width: inherit;"class="m-0 px-4">
+
+<form [formGroup]="searchForm" class="">
+  <div class="row g-2 py-3  border-bottom m-0 mb-4">
+    
+    <div class="col-6">
+      <div class="row mb-3 ">
+        
+        <label for="searchinputId" class="col-sm-2 col-form-label">رقم الحركة</label>
+        <div class="col-sm-10">
+          <input type="number" class="form-control" id="searchinputId" formControlName="searchInput">
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+    </div>
+    <div class="col-3" >
+      <button type="submit" class="btn btn-primary w-50 mb-3" (click)="searchInvoice()">Search</button>
+    </div>
+    
+  </div>
+</form>
+
+<!--  -->
+<form #userForm="ngForm" class="mt-2" >
+<div class="row m-0">
+
+  <div class="col" >
+
+    <div class="col-md">
+      <div class="row mb-3 ">
+        <label for="inputId" class="col-sm-2 col-form-label">رقم الحركة</label>
+        <div class="col-sm-10">
+          <input type="number" class="form-control" id="inputId" name="id"  matTooltip="Read only"
+          matTooltipPosition="right"
+        [(ngModel)]="invoice.id" readonly>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <div class="row mb-3 ">
+        <label for="inputClientName" class="col-sm-2 col-form-label">اسم العميل</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="inputClientName" name="ClientName" required
+          [(ngModel)]="invoice.clientName">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <div class="row mb-3 ">
+        <label for="inputDate" class="col-sm-2 col-form-label">التاريخ</label>
+        <div class="col-sm-10">
+          <input type="date" class="form-control" id="inputDate" name="date" required
+          [(ngModel)]="invoice.date">
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="col">
+    <div class="row">
+
+      <div class="col-6">
+        <button type="button" class="btn btn-primary w-50 mb-3" (click)="update()" >Update</button>
+      </div>
+      <div class="col-6">
+        <button type="button" class="btn btn-primary w-50 mb-3" (click)="clear()">Clear data</button>
+      </div>
+      
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <button type="button" class="btn btn-primary w-50 mb-3" (click)="delete()" >Delete</button>
+      </div>
+      <div class="col-6">
+        <button type="button" class="btn btn-primary w-50 mb-3" (click)="insert(userForm)">Insert</button>
+      </div>
+     
+    </div>
+  </div>
+</div>
+</form>
+
+<form #loginForm="ngForm">
+  
+<table class="table table-bordered m-0" style="text-align: right;">
+  <thead>
+    <tr>
+      <td>الصنف</td>
+      <td>الكمية</td>
+      <td>السعر</td>
+      <td>الاجمالى</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let invoiceDetail of invoice.invoiceDetails;let i = index">
+      <td>
+        <input [(ngModel)]="invoiceDetail.item" class="form-control" required minlength="1"
+        type="text" name="item{{i}}"/>
+    </td>
+    <td>
+      <input [(ngModel)]="invoiceDetail.unitPrice" class="form-control" required
+      pattern="([0-9]*[.])?[0-9]+" name="unitPrice{{i}}"
+      type="number" />
+    </td>
+    <td>
+      <input [(ngModel)]="invoiceDetail.quantity" class="form-control" required 
+       min ="1" pattern="^[1-9]\d{0,11}$" name="quantity{{i}}"
+      type="number" />
+    </td>
+      <td>
+        <label >
+          {{calculateTotal(invoiceDetail.unitPrice,
+            invoiceDetail.quantity
+          )}}
+        </label>
+      </td>
+    <td>
+      <button class="btn btn-default" type="button" (click)="deleteFieldValue(i)"
+        >Delete</button>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <input class="form-control" type="text" id="newAttributeCode" required
+      [(ngModel)]="newAttribute.item" name="newAttributeCode" />
+    </td>
+    <td>
+      <input class="form-control" type="number" id="newAttributeName" required pattern="([0-9]*[.])?[0-9]+"
+      [(ngModel)]="newAttribute.unitPrice" name="newAttributeName" />
+    </td>
+    <td>
+      <input class="form-control" type="number" id="newAttributePrice" required min ="1" pattern="^[1-9]\d{0,11}$"
+      [(ngModel)]="newAttribute.quantity" name="newAttributePrice" />
+    </td>
+    <td>
+      <label > {{calculateTotal(newAttribute.unitPrice,newAttribute.quantity)}}</label>
+    </td>
+    <td>
+        <button class="btn btn-default" type="button" (click)="addFieldValue()"
+        [disabled]="loginForm.invalid">Add</button>
+    </td>
+</tr>
+  </tbody>
+</table>
+</form>
+<div class="row m-0 border-top mt-4 pt-2">
+
+  <div class="col-md">
+    <div class="row mb-3 mx-0 ">
+      <label for="totalItem" class="col-sm-3 col-form-label">عدد الاصناف</label>
+      <div class="col-sm-8">
+        <input type="number" class="form-control" id="totalItem" value="{{getTotalCountItems()}}" readonly
+        matTooltip="Read only"
+          matTooltipPosition="right">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md">
+    <div class="row mx-0 mb-3 ">
+      <label for="totalPill" class="col-sm-3 col-form-label">اجمالى الفاتورة</label>
+      <div class="col-sm-8">
+        <input type="number" class="form-control" id="totalPill" value="{{getTotalPill()}}" readonly
+        matTooltip="Read only"
+          matTooltipPosition="right">
+      </div>
+    </div>
+  </div>
+ 
+</div>
+
+</div>
